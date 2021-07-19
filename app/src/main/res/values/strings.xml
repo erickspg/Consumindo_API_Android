@@ -3,4 +3,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="consumindo_api_covid19">Consumindo API - COVID19</string>
+    <string name="hist_rico_de_mortes_e_casos_por_estado">Histórico de mortes e casos por estado</string>
+    <string name="hist_rico_de_mortes_e_casos_por_pa_s">Histórico de mortes e casos por país</string>
+    <string name="dados_atuais_de_mortes_e_casos_por_estado">Dados atuais de mortes e casos por estado</string>
 </resources>

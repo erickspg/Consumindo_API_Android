@@ -44,7 +44,8 @@ public class MainActivity extends AppCompatActivity {
         btnAtualEstado = findViewById(R.id.atuaisPorEstado);
         textTop = findViewById(R.id.textTop);
         historicoPais();
-
+        historicoEstado();
+        atuaisEstado();
     }
 
     public void HistoricoP(View view) {
@@ -60,6 +61,31 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    public void HistoricoE(View view) {
+        //instancio fragmento
+        historicoEFragment fragment = new historicoEFragment();
+        param.putString("response", historicoEstado);  //envio os parametros
+        fragment.setArguments(param);
+
+        //faço a transação do fragmento
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frame_container, fragment); // amarro ao meu frame layout
+        fragmentTransaction.commit();
+    }
+
+    public void atuaisE(View view) {
+        //instancio fragmento
+        atuaisEFragment fragment = new atuaisEFragment();
+        param.putString("response", atuaisEstado);  //envio os parametros
+        fragment.setArguments(param);
+
+        //faço a transação do fragmento
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frame_container, fragment); // amarro ao meu frame layout
+        fragmentTransaction.commit();
+    }
 
     public void historicoPais(){
 
@@ -101,117 +127,59 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void historicoEstado(View v){
+    public void historicoEstado(){
 
-        Log.e("TAG_MTD",
-                "Entrei no Metodo!");
-
-        //NukeSSLCerts.nuke();
         RequestQueue fila = Volley.newRequestQueue(this);
-        String url = "https://api.covidtracking.com/v1/us/daily.json";
-        JsonObjectRequest request = new JsonObjectRequest
-        (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+        String urlServidor = "https://api.covidtracking.com/v1/states/daily.json";    //Campos do JSON: state / positive / death
+
+
+        // cria a requisição de mensagem e tratamento de resposta
+        StringRequest  requisicao = new StringRequest (Request.Method.GET,urlServidor, new Response.Listener<String>() {
             @Override
-            public void onResponse(JSONObject json) {
+            public void onResponse(String result) {
 
-                try {
+                historicoEstado = result;
 
-                    int casos, morte; //Informação do JSON -> positive, death
-                    String mortes, mortes2;
-
-                    casos = json.getInt("positive");
-                    //morte = json.getInt("death");
-                    mortes = json.get("death").toString();
-                    mortes2 = json.getString("death");
-
-                    Log.e("TAG_try",
-                            "Try");
-
-                    //textTop.setText(casos);
-                    textTop.setText(mortes2);
-                    //textTop.setText(mortes);
-
-                    System.out.println(casos);
-                    //System.out.println(morte);
-
-                } catch (Exception e) {
-                    Log.e("TAG_error",
-                            "catch");
-                    e.printStackTrace();
-                }
             }
-        }, new Response.ErrorListener() {
+        },
+
+        new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
 
             }
         });
 
-        // Add the request to the RequestQueue.
-        fila.add(request);
-        //getSupportFragmentManager().beginTransaction().replace(R.id.frame_container, new historicoEFragment()).commit();
+        // envia a mensagem ao servidor
+        fila.add(requisicao);
 
     }
 
 
-    public void atuaisEstado(View v){
+    public void atuaisEstado(){
         RequestQueue fila = Volley.newRequestQueue(this);
-        String urlServidor = "https://api.covidtracking.com/v1/us/daily.json";
-        //Campos do JSON: positive / death
+        String urlServidor = "https://api.covidtracking.com/v1/states/current.json";    //Campos do JSON: state / positive / death
+
 
         // cria a requisição de mensagem e tratamento de resposta
-        StringRequest requisicao = new StringRequest(
-                Request.Method.GET, // 1 - Método usado para enviar mensagem
-                urlServidor,        // 2 - Endereço do servidor
-                new Response.Listener<String>() { // 3 - Objeto para tratar resposta
-                    @Override
-                    public void onResponse(String response) {
-                        int mortes = 0;
+        StringRequest  requisicao = new StringRequest (Request.Method.GET,urlServidor, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String result) {
 
+                atuaisEstado = result;
 
-                        try {
-                            JSONObject obj = new JSONObject(response);
-                            JSONArray jsonArray = obj.getJSONArray("positive");
+            }
+        },
 
-                            for (int i=0; i < jsonArray.length(); i++)
-                            {
-                                try {
-                                    JSONObject oneObject = jsonArray.getJSONObject(i);
-                                    // Pulling items from the array
-                                    String casos = oneObject.getString("positive");
-                                    String mortos = oneObject.getString("death");
+        new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
 
-                                    Log.e("TESTE",
-                                            "positivo:" + casos);
-
-                                } catch (JSONException e) {
-                                    // Oops
-                                }
-                            }
-                            mortes = obj.getInt("death");
-                            textTop.setText(mortes);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-
-                        Log.e("TAG_RESPONSE",
-                                "Entrei no OnResponse!" + mortes);
-                        //textTop.setText(resultado.substring(0, 800));
-                    }
-                },
-
-                new Response.ErrorListener() { // 4 - Objeto para tratar erro
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                    }
-                });
+            }
+        });
 
         // envia a mensagem ao servidor
         fila.add(requisicao);
-        //getSupportFragmentManager().beginTransaction().replace(R.id.frame_container, new atuaisEFragment()).commit();
     }
 
 
